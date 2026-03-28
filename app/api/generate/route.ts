@@ -119,6 +119,36 @@ export async function POST(request: NextRequest) {
 
       const data = await response.json();
       generatedText = data.candidates[0].content.parts[0].text;
+    } else if (body.model.includes("/")) {
+      // Open-source via OpenRouter (model IDs contain a slash, e.g. "meta-llama/llama-3.1-70b-instruct")
+      const openRouterKey = process.env.OPENROUTER_API_KEY;
+      if (!openRouterKey) {
+        return NextResponse.json({ error: "OPENROUTER_API_KEY not configured" }, { status: 500 });
+      }
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openRouterKey}`,
+          "HTTP-Referer": "https://proposalcraft.app",
+          "X-Title": "ProposalCraft",
+        },
+        body: JSON.stringify({
+          model: body.model,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          max_tokens: 4096,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenRouter API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      generatedText = data.choices[0].message.content;
     } else {
       // Default: Anthropic Claude
       const response = await fetch("https://api.anthropic.com/v1/messages", {

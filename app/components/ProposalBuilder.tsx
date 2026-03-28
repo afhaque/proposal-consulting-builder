@@ -37,15 +37,26 @@ Scope: 90-day intensive engagement`,
   Custom: "",
 };
 
-const MODELS = ["claude-sonnet-4-6", "gpt-4o", "gemini-2.0-flash-001"];
+const MODELS = [
+  // Commercial
+  { id: "claude-sonnet-4-6", label: "Claude Sonnet 4.6 (Anthropic)" },
+  { id: "gpt-4o", label: "GPT-4o (OpenAI)" },
+  { id: "gemini-2.0-flash-001", label: "Gemini 2.0 Flash (Google)" },
+  // Open-source via OpenRouter
+  { id: "meta-llama/llama-3.1-70b-instruct", label: "Llama 3.1 70B (Meta · OpenRouter)" },
+  { id: "mistralai/mistral-7b-instruct", label: "Mistral 7B (Mistral · OpenRouter)" },
+  { id: "google/gemma-2-9b-it", label: "Gemma 2 9B (Google · OpenRouter)" },
+];
 
 const SYSTEM_PROMPT_PRESETS: Record<string, string> = {
   "Professional Consultant":
-    "You are a professional business consultant drafting formal proposals and consulting agreements.",
+    "You are a professional business consultant drafting formal proposals and consulting agreements. Use precise language, clear deliverables, and professional formatting.",
   "Friendly Advisor":
-    "You are a friendly and approachable business advisor writing warm yet professional proposals.",
+    "You are a friendly and approachable business advisor writing warm yet professional proposals. Make the client feel comfortable and valued while staying clear and actionable.",
   "Technical Expert":
-    "You are a technical expert drafting detailed project proposals with specifications and methodology.",
+    "You are a technical expert drafting detailed project proposals with specifications, architecture decisions, and methodology breakdowns. Be thorough and precise.",
+  "Comedic Consultant":
+    "You are a witty business consultant who writes proposals with humor and personality while still being professional and persuasive. Include clever wordplay, light jokes, and a memorable tone — but keep the actual business content sharp and accurate.",
   Custom: "",
 };
 
@@ -59,7 +70,7 @@ interface Config {
 }
 
 const DEFAULT_CONFIG: Config = {
-  model: "claude-sonnet-4-6",
+  model: "claude-sonnet-4-6", // default to commercial flagship
   systemPromptPreset: "Professional Consultant",
   customSystemPrompt: "",
   logoUrl: "",
@@ -371,11 +382,11 @@ export default function ProposalBuilder() {
                   <Select.Viewport className="p-1">
                     {MODELS.map((m) => (
                       <Select.Item
-                        key={m}
-                        value={m}
+                        key={m.id}
+                        value={m.id}
                         className="cursor-pointer rounded-md px-3 py-2 text-sm text-zinc-900 outline-none hover:bg-zinc-100 data-[highlighted]:bg-zinc-100"
                       >
-                        <Select.ItemText>{m}</Select.ItemText>
+                        <Select.ItemText>{m.label}</Select.ItemText>
                       </Select.Item>
                     ))}
                   </Select.Viewport>
